@@ -1,5 +1,8 @@
 import { RubricProvider } from './context/RubricContext';
 import RubricHeader from './components/RubricHeader';
+import RubricNameInput from './components/RubricNameInput';
+import TypeToggle from './components/TypeToggle';
+import RubricTable from './components/RubricTable';
 import { useRubric } from './context/RubricContext';
 
 function AppContent() {
@@ -9,9 +12,14 @@ function AppContent() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-10">
         <RubricHeader />
-        <pre className="mt-10 p-4 bg-gray-900 text-green-400 text-xs rounded-lg overflow-x-auto">
+        <RubricNameInput />
+        <TypeToggle />
+        <RubricTable />
+
+        {/* Debug opcional */}
+        {/* <pre className="mt-10 text-xs bg-gray-900 text-green-400 p-4 rounded">
           {JSON.stringify(rubric, null, 2)}
-        </pre>
+        </pre> */}
       </div>
     </div>
   );

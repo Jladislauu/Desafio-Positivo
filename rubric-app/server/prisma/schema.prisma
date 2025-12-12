@@ -1,9 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// server/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,27 +8,27 @@ datasource db {
 }
 
 model Rubric {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  type      String   // 'fixed' or 'variable'
-  createdAt DateTime @default(now())
+  type      String    // "fixed" ou "variable"
+  createdAt DateTime  @default(now())
   criteria  Criterion[]
 }
 
 model Criterion {
-  id       Int     @id @default(autoincrement())
-  name     String
-  order    Int     // Para reordenar
-  rubricId Int
-  rubric   Rubric  @relation(fields: [rubricId], references: [id])
-  levels   Level[]
+  id        Int     @id @default(autoincrement())
+  name      String
+  order     Int
+  rubricId  Int
+  rubric    Rubric  @relation(fields: [rubricId], references: [id], onDelete: Cascade)
+  levels    Level[]
 }
 
 model Level {
-  id           Int       @id @default(autoincrement())
-  label        String?   // Opcional em variable
+  id           Int        @id @default(autoincrement())
+  label        String?    // opcional (só usado no fixed)
   points       Float
   description  String
   criterionId  Int
-  criterion    Criterion @relation(fields: [criterionId], references: [id])
+  criterion    Criterion  @relation(fields: [criterionId], references: [id], onDelete: Cascade)
 }

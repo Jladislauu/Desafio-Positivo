@@ -1,70 +1,141 @@
-import express from 'express';
-import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
-import z from 'zod';
+// server/src/index.ts
+import 'dotenv/config'
+import express from 'express'
+import cors from 'cors'
+import { Pool } from 'pg'
+import z from 'zod'
 
-const app = express();
+const app = express()
+app.use(cors())
+app.use(express.json())
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
+// Conexão direta com PostgreSQL (nunca falha)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:root@localhost:5432/rubricdb'
+})
 
-const prisma = new PrismaClient({ adapter });
+// Testa conexão no startup
+pool.connect((err) => {
+  if (err) {
+    console.error('Erro ao conectar no banco:', err.message)
+    process.exit(1)
+  } else {
+    console.log('Conectado ao PostgreSQL com sucesso!')
+  }
+})
 
-app.use(cors());
-app.use(express.json());
-
-// Schema de validação (Zod para robustez)
+// Schema Zod (mesmo do antes)
 const rubricSchema = z.object({
   name: z.string().min(1),
   type: z.enum(['fixed', 'variable']),
   criteria: z.array(z.object({
     name: z.string().min(1),
-    order: z.number(),
+    order: z.number().int(),
     levels: z.array(z.object({
       label: z.string().optional(),
       points: z.number().min(0),
       description: z.string()
     }))
-  }))
-});
+  })).min(1)
+})
 
-// POST /rubrics - Salvar rubrica
+// POST /rubrics — com transação explícita
 app.post('/rubrics', async (req, res) => {
+  const client = await pool.connect()
   try {
-    const data = rubricSchema.parse(req.body);
-    const rubric = await prisma.rubric.create({
-      data: {
-        name: data.name,
-        type: data.type,
-        criteria: {
-          create: data.criteria.map(c => ({
-            name: c.name,
-            order: c.order,
-            levels: {
-              create: c.levels.map(l => ({
-                label: l.label,
-                points: l.points,
-                description: l.description
-              }))
-            }
-          }))
-        }
+    const data = rubricSchema.parse(req.body)
+    await client.query('BEGIN')
+
+    const rubricRes = await client.query(
+      'INSERT INTO "Rubric" (name, type) VALUES ($1, $2) RETURNING id',
+      [data.name, data.type]
+    )
+    const rubricId = rubricRes.rows[0].id
+
+    for (const crit of data.criteria) {
+      const critRes = await client.query(
+        'INSERT INTO "Criterion" (name, "order", "rubricId") VALUES ($1, $2, $3) RETURNING id',
+        [crit.name, crit.order, rubricId]
+      )
+      const criterionId = critRes.rows[0].id
+
+      for (const level of crit.levels) {
+        await client.query(
+          `INSERT INTO "Level" (label, points, description, "criterionId")
+           VALUES ($1, $2, $3, $4)`,
+          [level.label || null, level.points, level.description, criterionId]
+        )
       }
-    });
-    res.json(rubric);
+    }
+
+    await client.query('COMMIT')
+
+    // Busca o resultado completo
+    const result = await pool.query(`
+      SELECT 
+        r.*,
+        json_agg(
+          json_build_object(
+            'id', c.id,
+            'name', c.name,
+            'order', c."order",
+            'levels', (
+              SELECT json_agg(
+                json_build_object('id', l.id, 'label', l.label, 'points', l.points, 'description', l.description)
+              ) FROM "Level" l WHERE l."criterionId" = c.id
+            )
+          ) ORDER BY c."order"
+        ) as criteria
+      FROM "Rubric" r
+      LEFT JOIN "Criterion" c ON c."rubricId" = r.id
+      WHERE r.id = $1
+      GROUP BY r.id
+    `, [rubricId])
+
+    res.status(201).json(result.rows[0])
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message });
+    await client.query('ROLLBACK')
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validação falhou', details: error.issues })
+    }
+    console.error(error)
+    res.status(500).json({ error: 'Erro ao salvar rubrica' })
+  } finally {
+    client.release()
   }
-});
+})
 
-// GET /rubrics - Listar todas (extra para robustez)
+// GET /rubrics
 app.get('/rubrics', async (req, res) => {
-  const rubrics = await prisma.rubric.findMany({
-    include: { criteria: { include: { levels: true } } }
-  });
-  res.json(rubrics);
-});
+  try {
+    const result = await pool.query(`
+      SELECT 
+        r.id, r.name, r.type, r."createdAt",
+        json_agg(
+          json_build_object(
+            'id', c.id,
+            'name', c.name,
+            'order', c."order",
+            'levels', (
+              SELECT json_agg(
+                json_build_object('id', l.id, 'label', l.label, 'points', l.points, 'description', l.description)
+                ORDER BY l.id
+              ) FROM "Level" l WHERE l."criterionId" = c.id
+            )
+          ) ORDER BY c."order"
+        ) as criteria
+      FROM "Rubric" r
+      LEFT JOIN "Criterion" c ON c."rubricId" = r.id
+      GROUP BY r.id
+      ORDER BY r."createdAt" DESC
+    `)
+    res.json(result.rows)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Erro ao buscar rubricas' })
+  }
+})
 
-app.listen(3001, () => console.log('Server on port 3001'));
+app.listen(3001, () => {
+  console.log('API rodando em http://localhost:3001 (PostgreSQL puro)')
+})
