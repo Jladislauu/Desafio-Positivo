@@ -2,6 +2,7 @@
 import { useRubric } from '../context/RubricContext';
 import axios from 'axios';
 import { useState } from 'react';
+import { RefreshCcw } from 'lucide-react';
 
 export default function RubricHeader() {
   const { rubric, resetRubric } = useRubric();
@@ -33,16 +34,17 @@ export default function RubricHeader() {
   };
 
   return (
-    <div className="flex flex-col gap-4 mb-8"> {/* Added mb-8 for spacing inside card */}
+    <div className="flex flex-col gap-4 mb-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-blue-900"> {/* Blue-dark, slightly smaller than 3xl for CoGrader fit */}
+        <h1 className="text-2xl font-semibold text-blue-900">
           Criar Rubrica
         </h1>
         <div className="flex gap-3">
           <button
             onClick={resetRubric}
-            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition"
+            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition flex items-center gap-2"
           >
+            <RefreshCcw className="w-4 h-4" />
             Resetar rubrica
           </button>
           <button

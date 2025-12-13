@@ -1,4 +1,4 @@
-// client/src/components/RubricTable.tsx
+// src/components/RubricTable.tsx
 import { useRubric } from '../context/RubricContext';
 import CriterionRow from './CriterionRow';
 import LevelHeaderCell from './LevelHeaderCell';
@@ -16,6 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import type { DragEndEvent } from '@dnd-kit/core';
+import { Plus } from 'lucide-react';
 
 export default function RubricTable() {
   const { rubric, addCriterion, moveCriterion } = useRubric();
@@ -30,7 +31,7 @@ export default function RubricTable() {
     if (!over || active.id === over.id) return;
 
     const oldIndex = rubric.criteria.findIndex((c) => c.id === active.id);
-    const newIndex = rubric.criteria.findIndex((c) => c.id === over.id); // ← AQUI ERA O ERRO
+    const newIndex = rubric.criteria.findIndex((c) => c.id === over.id);
 
     if (oldIndex !== newIndex) {
       moveCriterion(oldIndex, newIndex);
@@ -40,29 +41,20 @@ export default function RubricTable() {
   const criterionIds = rubric.criteria.map((c) => c.id!);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="relative mt-8">
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <table className="w-full">
+        <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-gray-300 bg-gray-50">
               <th className="w-12 px-4 py-4"></th>
               <th className="px-4 py-4 text-left font-medium text-gray-700">Critério</th>
 
-              {/* Níveis fixos */}
               {rubric.type === 'fixed' &&
                 rubric.globalLevels?.map((_, i) => <LevelHeaderCell key={i} index={i} />)}
 
-              {/* Níveis variáveis — cabeçalho vazio (níveis ficam dentro da linha) */}
               {rubric.type === 'variable' && <th className="px-4 py-4"></th>}
 
-              <th className="w-20 px-4 py-4">
-                <button
-                  onClick={addCriterion}
-                  className="w-10 h-10 rounded-full bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center text-2xl shadow-lg transition"
-                >
-                  +
-                </button>
-              </th>
+              <th className="w-20 px-4 py-4"></th>
             </tr>
           </thead>
 
@@ -75,6 +67,15 @@ export default function RubricTable() {
           </tbody>
         </table>
       </DndContext>
+
+      {/* Botão + adicionado fora da tabela, pequeno e à direita */}
+      <button
+        onClick={addCriterion}
+        className="absolute top-0 right-0 mt-[-12px] mr-[-12px] w-12 h-12 rounded-full bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center text-3xl shadow-lg transition"
+        title="Adicionar critério"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
     </div>
   );
 }

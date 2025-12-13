@@ -44,7 +44,7 @@ export default function TypeToggle() {
   };
 
   return (
-    <div className="mb-8">
+    <div className="ml-8"> {/* Margem esquerda para alinhar ao lado do Name */}
       <span className="block text-sm font-medium text-gray-700 mb-3">Tipo</span>
       <div className="inline-flex rounded-lg shadow-sm border border-gray-300" role="group">
         <button
@@ -69,7 +69,10 @@ export default function TypeToggle() {
         >
           Níveis variáveis
         </button>
-        <span className="ml-3 flex items-center text-sm text-gray-500">
+        <span 
+          className="ml-3 flex items-center text-sm text-gray-500 cursor-help"
+          title="Níveis fixos compartilham uma escala; níveis variáveis usam escalas diferentes."
+        >
           ?
         </span>
       </div>
