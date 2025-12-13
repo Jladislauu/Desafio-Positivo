@@ -46,20 +46,32 @@ export default function TypeToggle() {
   return (
     <div className="mb-8">
       <span className="block text-sm font-medium text-gray-700 mb-3">Tipo</span>
-      <div className="flex gap-4">
-        <label className="flex items-center cursor-pointer">
-          <input type="radio" name="type" checked={rubric.type === 'fixed'} onChange={() => handleChange('fixed')} className="sr-only" />
-          <span className={`px-5 py-2.5 rounded-lg border-2 transition-all ${rubric.type === 'fixed' ? 'border-blue-600 bg-blue-50 text-blue-700 font-medium' : 'border-gray-300 text-gray-600'}`}>
-            Níveis fixos
-          </span>
-        </label>
-
-        <label className="flex items-center cursor-pointer">
-          <input type="radio" name="type" checked={rubric.type === 'variable'} onChange={() => handleChange('variable')} className="sr-only" />
-          <span className={`px-5 py-2.5 rounded-lg border-2 transition-all ${rubric.type === 'variable' ? 'border-blue-600 bg-blue-50 text-blue-700 font-medium' : 'border-gray-300 text-gray-600'}`}>
-            Níveis variáveis
-          </span>
-        </label>
+      <div className="inline-flex rounded-lg shadow-sm border border-gray-300" role="group">
+        <button
+          type="button"
+          onClick={() => handleChange('fixed')}
+          className={`px-6 py-2.5 text-sm font-medium transition-all ${
+            rubric.type === 'fixed'
+              ? 'bg-blue-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          } rounded-l-lg border-r border-gray-300`}
+        >
+          Níveis fixos
+        </button>
+        <button
+          type="button"
+          onClick={() => handleChange('variable')}
+          className={`px-6 py-2.5 text-sm font-medium transition-all ${
+            rubric.type === 'variable'
+              ? 'bg-blue-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          } rounded-r-lg`}
+        >
+          Níveis variáveis
+        </button>
+        <span className="ml-3 flex items-center text-sm text-gray-500">
+          ?
+        </span>
       </div>
     </div>
   );

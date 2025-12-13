@@ -9,7 +9,6 @@ export default function RubricHeader() {
   const [error, setError] = useState('');
 
   const handleSave = async () => {
-    // Validação mínima
     if (!rubric.name.trim()) {
       setError('O nome da rubrica é obrigatório');
       return;
@@ -34,33 +33,33 @@ export default function RubricHeader() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Criar Rubrica</h1>
-          <div className="flex gap-3">
-            <button
-              onClick={resetRubric}
-              className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-            >
-              Resetar rubrica
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed transition flex items-center gap-2"
-            >
-              {saving ? 'Salvando...' : 'Salvar rubrica'}
-            </button>
-          </div>
+    <div className="flex flex-col gap-4 mb-8"> {/* Added mb-8 for spacing inside card */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold text-blue-900"> {/* Blue-dark, slightly smaller than 3xl for CoGrader fit */}
+          Criar Rubrica
+        </h1>
+        <div className="flex gap-3">
+          <button
+            onClick={resetRubric}
+            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition"
+          >
+            Resetar rubrica
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition"
+          >
+            {saving ? 'Salvando...' : 'Salvar rubrica'}
+          </button>
         </div>
-
-        {error && (
-          <div className="text-red-600 text-sm font-medium bg-red-50 px-4 py-2 rounded-lg">
-            {error}
-          </div>
-        )}
       </div>
+
+      {error && (
+        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

@@ -9,17 +9,14 @@ function AppContent() {
   const { rubric } = useRubric();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <RubricHeader />
-        <RubricNameInput />
-        <TypeToggle />
-        <RubricTable />
-
-        {/* Debug opcional */}
-        {/* <pre className="mt-10 text-xs bg-gray-900 text-green-400 p-4 rounded">
-          {JSON.stringify(rubric, null, 2)}
-        </pre> */}
+    <div className="min-h-screen bg-gray-100"> {/* Fundo cinza opaco como pedido */}
+      <div className="max-w-6xl mx-auto px-4 py-10"> {/* Centralizado, com padding vertical */}
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-8"> {/* Card único, branco, com shadow forte e arredondado */}
+          <RubricHeader />
+          <RubricNameInput />
+          <TypeToggle />
+          <RubricTable />
+        </div>
       </div>
     </div>
   );
