@@ -17,7 +17,7 @@ export default function LevelHeaderCell({ index }: Props) {
         type="text"
         value={level.label ?? ''}
         onChange={(e) => updateGlobalLevel(index, { label: e.target.value })}
-        placeholder="Rótulo do nível"
+        placeholder="Ex: Excelente"
         className="w-full text-center font-medium text-gray-700 bg-transparent border-none outline-none placeholder-gray-400"
       />
       
@@ -28,11 +28,12 @@ export default function LevelHeaderCell({ index }: Props) {
           type="number"
           value={level.points}
           onChange={(e) => updateGlobalLevel(index, { points: Number(e.target.value) })}
-          className="w-12 text-center bg-transparent border-none outline-none"
+          placeholder="10"
+          className="w-12 text-center bg-transparent border-none outline-none placeholder-gray-400"
           min="0"
           step="0.1"
         />
-        <span>pts)</span>
+        <span>)</span>
       </div>
     </th>
   );

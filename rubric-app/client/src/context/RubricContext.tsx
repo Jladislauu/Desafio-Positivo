@@ -78,13 +78,18 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addCriterion = () => {
+    // No modo variable, replicar a quantidade de níveis do último critério
+    const defaultLevels = rubric.type === 'variable' && rubric.criteria.length > 0
+      ? rubric.criteria[rubric.criteria.length - 1].levels.map(() => ({ points: 0, description: '' }))
+      : rubric.type === 'fixed'
+        ? (rubric.globalLevels || []).map((gl) => ({ points: gl.points, description: '' }))
+        : [{ points: 0, description: '' }];
+
     const newCriterion: Criterion = {
       id: uuidv4(),
       name: `Critério ${rubric.criteria.length + 1}`,
       order: rubric.criteria.length,
-      levels: rubric.type === 'fixed'
-        ? (rubric.globalLevels || []).map((gl) => ({ points: gl.points, description: '' }))
-        : [{ points: 0, description: '' }]
+      levels: defaultLevels
     };
     setRubric((prev) => ({
       ...prev,

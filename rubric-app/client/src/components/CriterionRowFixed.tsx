@@ -45,7 +45,7 @@ export default function CriterionRowFixed({ criterion }: Props) {
 
       {/* Células de descrição por nível */}
       {rubric.globalLevels?.map((_, idx) => (
-        <td key={idx} className="px-2 py-3 border-b border-gray-200 align-top">
+        <td key={idx} className="px-2 py-3 border-b border-r border-gray-200 align-top last:border-r-0">
           <textarea
             value={criterion.levels[idx]?.description || ''}
             onChange={(e) => updateLevelInCriterion(criterion.id, idx, { description: e.target.value })}
