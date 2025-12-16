@@ -20,9 +20,7 @@ function AppContent() {
           <RubricNameInput />
           <TypeToggle />
         </div>
-        <div className="overflow-x-auto"> {/* Overflow para tabela se níveis excederem */}
-          <RubricTable />
-        </div>
+        <RubricTable />
       </div>
     </div>
   );

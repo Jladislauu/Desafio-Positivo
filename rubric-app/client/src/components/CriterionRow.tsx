@@ -75,6 +75,10 @@ export default function CriterionRow({ criterion }: Props) {
           />
         </div>
       ))}
+      {rubric.type === 'variable' &&
+        Array.from({ length: Math.max(0, rubric.criteria.reduce((max, c) => Math.max(max, c.levels.length), 1) - criterion.levels.length) }).map((_, i) => (
+          <div key={`filler-${criterion.id}-${i}`} className="px-4 py-3" />
+        ))}
       {rubric.type === 'variable' && (
         <div className="px-4 py-3 align-top">
           <button
