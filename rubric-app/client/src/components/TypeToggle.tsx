@@ -21,24 +21,31 @@ export default function TypeToggle() {
         globalLevels: undefined 
       });
     } else {
+      // Converter para FIXED preservando a ordem por índice e
+      // preenchendo níveis faltantes no final (1, 3, vazio)
+      const maxLevels = Math.max(0, ...rubric.criteria.map(c => c.levels.length));
       const firstCriterionLevels = rubric.criteria[0]?.levels || [];
-      const baseLevels = firstCriterionLevels.map(l => ({
-        label: l.label || `Nível ${l.points} pts`,
-        points: l.points
-      }));
+
+      const baseLevels = Array.from({ length: maxLevels }, (_, i) => {
+        const src = firstCriterionLevels[i];
+        return {
+          label: src?.label || '',
+          points: src?.points ?? 0,
+        };
+      });
 
       const syncedCriteria = rubric.criteria.map(c => ({
         ...c,
-        levels: baseLevels.map(bl => ({
+        levels: baseLevels.map((bl, i) => ({
           points: bl.points,
-          description: c.levels.find(l => l.points === bl.points)?.description || ''
+          description: c.levels[i]?.description || ''
         }))
       }));
 
-      updateRubric({ 
-        type: 'fixed' as const, 
-        criteria: syncedCriteria, 
-        globalLevels: baseLevels 
+      updateRubric({
+        type: 'fixed' as const,
+        criteria: syncedCriteria,
+        globalLevels: baseLevels
       });
     }
   };
