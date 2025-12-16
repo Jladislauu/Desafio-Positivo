@@ -2,11 +2,10 @@
 import { useRubric } from '../context/RubricContext';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2, Plus, X } from 'lucide-react';
+import { GripVertical, Trash2, Plus } from 'lucide-react';
 
 interface Props {
   criterion: any;
-  index: number;
 }
 
 export default function CriterionRow({ criterion }: Props) {
@@ -27,96 +26,74 @@ export default function CriterionRow({ criterion }: Props) {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const levels = rubric.type === 'fixed' ? rubric.globalLevels : criterion.levels;
+
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-gray-200 hover:bg-gray-50">
-      {/* Drag handle */}
-      <td className="px-4 py-3">
+    <div ref={setNodeRef} style={style} className="contents hover:bg-gray-50">
+      <div className="px-4 py-3">
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="w-5 h-5 text-gray-400" />
         </div>
-      </td>
-
-      {/* Nome do critério */}
-      <td className="px-4 py-3 min-w-64">
+      </div>
+      <div className="px-4 py-3">
         <input
           type="text"
           value={criterion.name}
           onChange={(e) => updateCriterion(criterion.id, { name: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-          placeholder="Nome do critério"
+          placeholder="Critério"
+          className="w-full" /* Sem border */
         />
-      </td>
-
-      {/* Células — MODO FIXED */}
-      {rubric.type === 'fixed' &&
-        criterion.levels.map((level: any, idx: number) => (
-          <td key={idx} className="px-4 py-3 align-top w-80">
-            <textarea
-              value={level.description}
-              onChange={(e) => {
-                const newLevels = [...criterion.levels];
-                newLevels[idx].description = e.target.value;
-                updateCriterion(criterion.id, { levels: newLevels });
-              }}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Descreva o desempenho..."
-            />
-          </td>
-        ))}
-
-      {/* Células — MODO VARIABLE */}
-      {rubric.type === 'variable' &&
-        criterion.levels.map((level: any, idx: number) => (
-          <td key={idx} className="px-4 py-3 align-top min-w-72">
-            <div className="flex items-center gap-2 mb-2">
+      </div>
+      {levels?.map((level, idx) => (
+        <div key={idx} className="relative px-4 py-3">
+          {rubric.type === 'variable' && criterion.levels.length > 1 && (
+            <button
+              onClick={() => removeLevelFromCriterion(criterion.id, idx)}
+              className="absolute -top-4 left-1/2 -translate-x-1/2 text-gray-500 hover:bg-gray-100 p-1 rounded-full transition"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+          {rubric.type === 'variable' && (
+            <div className="flex justify-center mb-2">
               <input
                 type="number"
                 value={level.points}
                 onChange={(e) => updateLevelInCriterion(criterion.id, idx, { points: Number(e.target.value) })}
-                className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
+                className="w-16 text-center"
                 min="0"
                 step="0.1"
               />
-              <span className="text-sm text-gray-600">pts</span>
-              {criterion.levels.length > 1 && (
-                <button
-                  onClick={() => removeLevelFromCriterion(criterion.id, idx)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
+              <span className="ml-1 text-sm text-gray-600">pts</span>
             </div>
-            <textarea
-              value={level.description}
-              onChange={(e) => updateLevelInCriterion(criterion.id, idx, { description: e.target.value })}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Descreva o desempenho..."
-            />
-          </td>
-        ))}
-
-      {/* Botão + nível (só no modo variable) */}
+          )}
+          <textarea
+            value={level.description || criterion.levels[idx]?.description}
+            onChange={(e) => updateLevelInCriterion(criterion.id, idx, { description: e.target.value })}
+            placeholder="Descreva o desempenho..."
+            className="w-full"
+          />
+        </div>
+      ))}
       {rubric.type === 'variable' && (
-        <td className="px-4 py-3 align-top">
+        <div className="px-4 py-3 align-top">
           <button
             onClick={() => addLevelToCriterion(criterion.id)}
-            className="w-9 h-9 rounded-full border-2 border-dashed border-gray-400 hover:border-blue-500 hover:text-blue-600 flex items-center justify-center transition"
+            className="w-8 h-8 rounded-full border border-dashed border-gray-400 hover:border-blue-500 hover:text-blue-600 flex items-center justify-center transition"
             title="Adicionar nível"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5 text-gray-600" />
           </button>
-        </td>
+        </div>
       )}
-
-      {/* Botão remover critério */}
-      <td className="px-4 py-3 text-center">
-        <button onClick={() => removeCriterion(criterion.id)} className="text-red-500 hover:text-red-700">
+      <div className="px-4 py-3 text-center">
+        <button 
+          onClick={() => removeCriterion(criterion.id)} 
+          className="text-gray-500 hover:bg-gray-100 p-1 rounded-full transition"
+        >
           <Trash2 className="w-5 h-5" />
         </button>
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 }

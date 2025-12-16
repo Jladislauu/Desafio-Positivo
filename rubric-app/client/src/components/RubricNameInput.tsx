@@ -5,13 +5,13 @@ export default function RubricNameInput() {
 
   return (
     <div className="flex flex-col">
-      <label className="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+      <label className="block text-sm font-medium text-gray-600 mb-1">Nome</label>
       <input
         type="text"
         value={rubric.name}
         onChange={(e) => updateRubric({ name: e.target.value })}
-        placeholder="Ex: Rubrica de Matemática 9º ano"
-        className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+        placeholder=""
+        className="w-full text-lg" /* Sem border, via global css */
       />
       {!rubric.name && (
         <p className="mt-1 text-sm text-red-600">O nome da rubrica é obrigatório</p>

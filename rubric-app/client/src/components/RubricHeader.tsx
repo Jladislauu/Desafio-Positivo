@@ -2,9 +2,10 @@
 import { useRubric } from '../context/RubricContext';
 import axios from 'axios';
 import { useState } from 'react';
+import { RotateCcw } from 'lucide-react';
 
 export default function RubricHeader() {
-  const { rubric, resetRubric } = useRubric();
+  const { rubric, resetRubric, isInitial } = useRubric();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -58,33 +59,38 @@ export default function RubricHeader() {
   };
 
   return (
-    <div className="flex flex-col gap-4 mb-6">
-      <div className="flex justify-between items-center">
+    <>
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-blue-900">
           Criar Rubrica
         </h1>
         <div className="flex gap-3">
           <button
             onClick={resetRubric}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition"
+            disabled={isInitial}
+            className={`px-4 py-2 rounded-md flex items-center transition ${
+              isInitial 
+                ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
+                : 'border border-blue-500 text-blue-500 hover:bg-blue-50 bg-white'
+            }`}
           >
+            <RotateCcw className={`w-4 h-4 mr-2 ${isInitial ? 'text-gray-500' : 'text-blue-500'}`} />
             Resetar rubrica
           </button>
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || !rubric.name.trim()}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition"
           >
             {saving ? 'Salvando...' : 'Salvar rubrica'}
           </button>
         </div>
       </div>
-
       {error && (
-        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
+        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md mb-6">
           {error}
         </div>
       )}
-    </div>
+    </>
   );
 }

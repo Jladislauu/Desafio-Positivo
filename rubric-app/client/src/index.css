@@ -2,14 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos customizados que usamos antes */
+/* Estilos customizados para remover bordas e focus clean */
 input[type="text"],
 input[type="number"],
 textarea {
-  @apply border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg transition;
+  @apply border-none bg-transparent focus:outline-none focus:bg-gray-50 transition px-3 py-2 text-gray-700 placeholder-gray-400;
 }
 
-input::placeholder,
-textarea::placeholder {
-  @apply text-gray-400;
+textarea {
+  min-height: 48px; /* Altura mínima para descrições como no CoGrader */
+  resize: none;
 }

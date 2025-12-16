@@ -9,14 +9,14 @@ function AppContent() {
   const { rubric } = useRubric();
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-8">
-          <RubricHeader />
-          <div className="flex items-start gap-6 mb-8"> {/* Flex para Name e Type lado a lado */}
-            <RubricNameInput />
-            <TypeToggle />
-          </div>
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center"> {/* Fundo escuro, centralizado */}
+      <div className="bg-white rounded-xl shadow-lg p-6 max-w-5xl w-full"> {/* Card popup-like */}
+        <RubricHeader />
+        <div className="flex items-start gap-6 mb-6">
+          <RubricNameInput />
+          <TypeToggle />
+        </div>
+        <div className="overflow-x-auto"> {/* Overflow para tabela se níveis excederem */}
           <RubricTable />
         </div>
       </div>
