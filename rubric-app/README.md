@@ -17,7 +17,10 @@ Pré‑requisitos:
 
 ```env
 # server/.env
-DATABASE_URL="postgresql://USUARIO:SENHA@HOST:PORTA/NOME_BANCO?schema=public"
+DATABASE_URL="postgresql://USUARIO:SENHA@HOST:PORTA/NOME_BANCO"
+
+Exemplo padrão
+DATABASE_URL=postgresql://postgres:root@localhost:5432/rubricdb
 ```
 
 - Instale as dependências e gere/migre o banco:
