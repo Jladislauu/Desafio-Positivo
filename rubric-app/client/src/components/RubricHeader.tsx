@@ -35,7 +35,9 @@ export default function RubricHeader() {
         name: c.name,
         order: index + 1, // Adiciona order sequencial
         levels: c.levels.map(l => ({
-          label: l.label || null, // Optional
+          // label é opcional no backend (não aceitar null no Zod)
+          // Enviar undefined quando vazio em vez de null
+          label: l.label && l.label.trim() !== '' ? l.label.trim() : undefined,
           points: l.points,
           description: l.description || ''
         }))
@@ -52,7 +54,13 @@ export default function RubricHeader() {
       alert('Rubrica salva com sucesso!');
     } catch (err: any) {
       console.error('Erro completo:', err);
-      setError(err.response?.data?.error || err.message || 'Erro ao salvar');
+      const details = err?.response?.data?.details;
+      if (Array.isArray(details) && details.length > 0) {
+        // Mostra a primeira mensagem de validação do Zod
+        setError(details[0]?.message || err.response?.data?.error || err.message || 'Erro ao salvar');
+      } else {
+        setError(err.response?.data?.error || err.message || 'Erro ao salvar');
+      }
     } finally {
       setSaving(false);
     }
