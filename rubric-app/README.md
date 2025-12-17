@@ -19,7 +19,7 @@ Pré‑requisitos:
 # server/.env
 DATABASE_URL="postgresql://USUARIO:SENHA@HOST:PORTA/NOME_BANCO"
 
-Exemplo padrão
+# Exemplo padrão
 DATABASE_URL=postgresql://postgres:root@localhost:5432/rubricdb
 ```
 
