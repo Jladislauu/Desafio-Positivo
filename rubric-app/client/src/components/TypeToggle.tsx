@@ -25,11 +25,17 @@ export default function TypeToggle() {
       // preenchendo níveis faltantes no final (1, 3, vazio)
       const maxLevels = Math.max(0, ...rubric.criteria.map(c => c.levels.length));
       const firstCriterionLevels = rubric.criteria[0]?.levels || [];
+      const defaultLabels = [
+        'Atende expectativas',
+        'Aproxima-se das expectativas',
+        'Abaixo das expectativas',
+        'Muito abaixo das expectativas',
+      ];
 
       const baseLevels = Array.from({ length: maxLevels }, (_, i) => {
         const src = firstCriterionLevels[i];
         return {
-          label: src?.label || '',
+          label: (src?.label && src.label.trim()) || defaultLabels[i] || '',
           points: src?.points ?? 0,
         };
       });

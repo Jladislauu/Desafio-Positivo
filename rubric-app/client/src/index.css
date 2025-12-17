@@ -13,3 +13,5 @@ textarea {
   min-height: 48px; /* Altura mínima para descrições como no CoGrader */
   resize: none;
 }
+
+/* Mantemos a aparência nativa dos inputs numéricos com setas (spinners) */

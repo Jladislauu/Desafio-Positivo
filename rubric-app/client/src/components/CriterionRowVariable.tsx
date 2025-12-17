@@ -30,8 +30,9 @@ export default function CriterionRowVariable({ criterion }: Props) {
     <div ref={setNodeRef} style={style} className="flex flex-col gap-1">
       {/* Linha de lixeiras de níveis - acima da tabela */}
       <div className="flex items-center">
-        {/* Espaço para drag handle + coluna critério */}
-        <div className="w-[180px] flex-shrink-0"></div>
+        {/* Espaço para drag handle + coluna critério (alinhados com a linha principal) */}
+        <div className="w-10 flex-shrink-0"></div>
+        <div className="w-[140px] flex-shrink-0"></div>
         {/* Lixeiras dos níveis - distribuídas proporcionalmente (sem bordas laterais) */}
         <div className="flex-1 flex">
           {criterion.levels.map((_: any, idx: number) => (
@@ -57,19 +58,19 @@ export default function CriterionRowVariable({ criterion }: Props) {
 
       {/* Linha principal */}
       <div className="flex items-stretch">
-        {/* Container unificado com borda única */}
-        <div className="flex-1 border border-gray-200 rounded-lg overflow-hidden flex">
-          {/* Handle de arrastar */}
-          <div className="flex items-center justify-center w-10 flex-shrink-0 bg-gray-50 border-r border-gray-200">
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-              <GripVertical className="w-5 h-5 text-gray-400" />
-            </div>
+        {/* Handle à esquerda, levemente antes da linha (fora do container da tabela) */}
+        <div className="w-10 flex-shrink-0 bg-gray-50 flex items-center justify-center mr-2 rounded-md">
+          <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+            <GripVertical className="w-5 h-5 text-gray-400" />
           </div>
+        </div>
 
+        {/* Container da tabela com borda própria */}
+        <div className="flex-1 border border-gray-200 rounded-lg overflow-hidden flex">
           {/* Coluna do critério (largura fixa) */}
           <div className="w-[140px] flex-shrink-0 border-r border-gray-200">
-            {/* Header */}
-            <div className="px-3 py-2 font-medium text-gray-700 text-sm bg-gray-100">
+            {/* Header (altura fixa para alinhar com headers de níveis) */}
+            <div className="px-3 h-10 flex items-center font-medium text-gray-700 text-sm bg-gray-100">
               Critério
             </div>
             {/* Nome */}
@@ -78,7 +79,7 @@ export default function CriterionRowVariable({ criterion }: Props) {
                 type="text"
                 value={criterion.name}
                 onChange={(e) => updateCriterion(criterion.id, { name: e.target.value })}
-                placeholder="Nome"
+                placeholder="Nome do critério"
                 className="w-full bg-transparent border-none outline-none text-gray-800 text-sm"
               />
             </div>
@@ -88,17 +89,18 @@ export default function CriterionRowVariable({ criterion }: Props) {
           <div className="flex-1 flex overflow-x-auto divide-x divide-gray-200">
             {criterion.levels.map((level: any, idx: number) => (
               <div key={idx} className="flex-1 min-w-[120px]">
-                {/* Header do nível com pontos */}
-                <div className="px-3 py-2 bg-gray-100">
+                {/* Header do nível com pontos (altura igual ao header do critério) */}
+                <div className="px-3 h-10 flex items-center justify-center bg-gray-100">
                   <div className="flex items-center justify-center gap-1">
                     <input
                       type="number"
-                      value={level.points}
+                      value={level.points ?? 0}
                       onChange={(e) => updateLevelInCriterion(criterion.id, idx, { points: Number(e.target.value) })}
-                      placeholder="9.5"
-                      className="w-12 text-center bg-transparent border-none outline-none text-sm font-medium placeholder-gray-400"
-                      min="0"
-                      step="0.1"
+                      placeholder={['Ex: 4', 'Ex: 3.4', 'Ex: 3', 'Ex: 2.6'][idx] ?? 'Ex: 3'}
+                      className="text-center bg-transparent border-none outline-none text-sm font-medium placeholder-gray-400 tabular-nums min-w-[72px]"
+                      style={{ width: `${Math.max(4, String(level.points ?? '').length + 2)}ch` }}
+                      min={0}
+                      step={0.1}
                     />
                     <span className="text-xs text-gray-500">pts</span>
                   </div>
@@ -108,8 +110,19 @@ export default function CriterionRowVariable({ criterion }: Props) {
                   <textarea
                     value={level.description || ''}
                     onChange={(e) => updateLevelInCriterion(criterion.id, idx, { description: e.target.value })}
+                    onInput={(e) => {
+                      const t = e.currentTarget;
+                      t.style.height = 'auto';
+                      t.style.height = `${t.scrollHeight}px`;
+                    }}
+                    ref={(el) => {
+                      if (el) {
+                        el.style.height = 'auto';
+                        el.style.height = `${el.scrollHeight}px`;
+                      }
+                    }}
                     placeholder="Descrição"
-                    className="w-full min-h-[50px] bg-transparent border-none outline-none resize-none text-sm text-gray-700 placeholder-gray-400"
+                    className="w-full min-h-[50px] bg-transparent border-none outline-none resize-none overflow-hidden text-sm text-gray-700 placeholder-gray-400"
                     rows={2}
                   />
                 </div>

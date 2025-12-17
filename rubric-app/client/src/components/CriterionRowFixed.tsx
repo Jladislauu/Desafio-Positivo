@@ -49,8 +49,19 @@ export default function CriterionRowFixed({ criterion }: Props) {
           <textarea
             value={criterion.levels[idx]?.description || ''}
             onChange={(e) => updateLevelInCriterion(criterion.id, idx, { description: e.target.value })}
+            onInput={(e) => {
+              const t = e.currentTarget;
+              t.style.height = 'auto';
+              t.style.height = `${t.scrollHeight}px`;
+            }}
+            ref={(el) => {
+              if (el) {
+                el.style.height = 'auto';
+                el.style.height = `${el.scrollHeight}px`;
+              }
+            }}
             placeholder="Descreva o desempenho..."
-            className="w-full min-h-[60px] bg-transparent border-none outline-none resize-none text-gray-700 placeholder-gray-400"
+            className="w-full min-h-[60px] bg-transparent border-none outline-none resize-none overflow-hidden text-gray-700 placeholder-gray-400"
             rows={2}
           />
         </td>

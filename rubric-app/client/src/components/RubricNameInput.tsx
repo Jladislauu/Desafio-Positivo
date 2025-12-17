@@ -10,7 +10,7 @@ export default function RubricNameInput() {
         type="text"
         value={rubric.name}
         onChange={(e) => updateRubric({ name: e.target.value })}
-        placeholder=""
+        placeholder="Minha rubrica"
         className="w-full text-lg" /* Sem border, via global css */
       />
       {!rubric.name && (

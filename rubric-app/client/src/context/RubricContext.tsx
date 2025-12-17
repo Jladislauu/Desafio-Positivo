@@ -1,5 +1,5 @@
 // src/context/RubricContext.tsx
-import { createContext, useContext, useState, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useState, useMemo, useEffect, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { Rubric, Criterion, Level, RubricType } from '../types/rubric.types';
 
@@ -32,10 +32,10 @@ const initialRubric: Rubric = {
   name: 'Minha Rubrica',
   type: 'fixed',
   globalLevels: [
-    { points: 4, label: '' },
-    { points: 3.4, label: '' },
-    { points: 3, label: '' },
-    { points: 2.6, label: '' },
+    { points: 4, label: 'Atende expectativas' },
+    { points: 3.4, label: 'Aproxima-se das expectativas' },
+    { points: 3, label: 'Abaixo das expectativas' },
+    { points: 2.6, label: 'Muito abaixo das expectativas' },
   ],
   criteria: [
     {
@@ -55,6 +55,38 @@ const initialRubric: Rubric = {
 export const RubricProvider = ({ children }: { children: ReactNode }) => {
   const [rubric, setRubric] = useState<Rubric>(initialRubric);
 
+  // Preencher rótulos padrão nos níveis globais quando estiverem vazios
+  useEffect(() => {
+    if (!rubric.globalLevels || rubric.globalLevels.length === 0) return;
+    const defaultLabels = [
+      'Atende expectativas',
+      'Aproxima-se das expectativas',
+      'Abaixo das expectativas',
+      'Muito abaixo das expectativas',
+    ];
+    let changed = false;
+    const fixed = rubric.globalLevels.map((gl, i) => {
+      const hasDefault = i < defaultLabels.length;
+      const shouldFill = hasDefault && (!gl.label || gl.label.trim() === '');
+      if (shouldFill) {
+        const newLabel = defaultLabels[i];
+        if (gl.label !== newLabel) {
+          changed = true;
+          return { ...gl, label: newLabel };
+        }
+      }
+      return gl;
+    });
+    if (changed) {
+      setRubric((prev) => {
+        // Se nada realmente mudou, não dispare setState
+        const same = prev.globalLevels?.every((gl, i) => gl.label === fixed[i].label && gl.points === fixed[i].points);
+        if (same) return prev;
+        return { ...prev, globalLevels: fixed };
+      });
+    }
+  }, [rubric.globalLevels]);
+
   const isInitial = useMemo(() => {
     if (rubric.name !== initialRubric.name) return false;
     if (rubric.type !== initialRubric.type) return false;
@@ -64,8 +96,12 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
     if (crit.name !== initCrit.name) return false;
     if (crit.levels.length !== 4) return false;
     if (rubric.globalLevels?.length !== 4) return false;
-    const pointsMatch = rubric.globalLevels.every((gl, i) => gl.points === initialRubric.globalLevels![i].points && gl.label === '');
-    const levelsMatch = crit.levels.every((l, i) => l.points === initCrit.levels[i].points && l.description === 'Descrição');
+    const pointsMatch = rubric.globalLevels.every(
+      (gl, i) => gl.points === initialRubric.globalLevels![i].points && (gl.label ?? '') === (initialRubric.globalLevels![i].label ?? '')
+    );
+    const levelsMatch = crit.levels.every(
+      (l, i) => l.points === initCrit.levels[i].points && (l.description ?? '') === (initCrit.levels[i].description ?? 'Descrição')
+    );
     return pointsMatch && levelsMatch;
   }, [rubric]);
 
@@ -80,10 +116,10 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
   const addCriterion = () => {
     // No modo variable, replicar a quantidade de níveis do último critério
     const defaultLevels = rubric.type === 'variable' && rubric.criteria.length > 0
-      ? rubric.criteria[rubric.criteria.length - 1].levels.map(() => ({ points: 0, description: '' }))
+      ? rubric.criteria[rubric.criteria.length - 1].levels.map(() => ({ points: 0, description: 'Descrição' }))
       : rubric.type === 'fixed'
-        ? (rubric.globalLevels || []).map((gl) => ({ points: gl.points, description: '' }))
-        : [{ points: 0, description: '' }];
+        ? (rubric.globalLevels || []).map((gl) => ({ points: gl.points, description: 'Descrição' }))
+        : [{ points: 0, description: 'Descrição' }];
 
     const newCriterion: Criterion = {
       id: uuidv4(),
@@ -123,13 +159,13 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addGlobalLevel = () => {
-    const newLevel = { points: 0, label: '' };
+    const newLevel = { points: 0, label: 'Novo Nível' };
     setRubric((prev) => ({
       ...prev,
       globalLevels: [...(prev.globalLevels || []), newLevel],
       criteria: prev.criteria.map((c) => ({
         ...c,
-        levels: [...c.levels, { points: 0, description: '' }],
+        levels: [...c.levels, { points: 0, description: 'Descrição' }],
       })),
     }));
   };
@@ -165,7 +201,7 @@ export const RubricProvider = ({ children }: { children: ReactNode }) => {
       ...prev,
       criteria: prev.criteria.map((c) =>
         c.id === criterionId
-          ? { ...c, levels: [...c.levels, { points: 0, description: '' }] }
+          ? { ...c, levels: [...c.levels, { points: 0, description: 'Descrição' }] }
           : c
       ),
     }));
